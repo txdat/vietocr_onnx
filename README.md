@@ -1,2 +1,2 @@
-# vietocr2onnx
-convert [vietocr](https://github.com/pbcquoc/vietocr/)'s pretrained models (pytorch) to onnx
+# vietocr_onnx
+[vietocr](https://github.com/pbcquoc/vietocr/) (pytorch) in onnx
