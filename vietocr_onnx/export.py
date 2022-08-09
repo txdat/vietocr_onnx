@@ -1226,12 +1226,15 @@ def export_vietocr_to_onnx(
     }, f"{model_name} is not supported ('vgg_seq2seq', 'vgg_transformer')"
 
     cfg = Cfg.load_config_from_name(model_name)
-    # with open("config/base.yaml", mode="r", encoding="utf-8") as f:
+
+    # config_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config")
+    # with open(f"{config_dir}/base.yaml", mode="r", encoding="utf-8") as f:
     #     cfg = yaml.load(f, Loader=yaml.FullLoader)
-    # with open(f"config/{model_name}.yaml", mode="r", encoding="utf-8") as f:
+    # with open(f"{config_dir}/{model_name}.yaml", mode="r", encoding="utf-8") as f:
     #     cfg.update(yaml.load(f, Loader=yaml.FullLoader))
-    # cfg["cnn"]["pretrained"] = False  # download torchvision 's pretrained weights
-    # cfg["device"] = "cpu"
+
+    cfg["cnn"]["pretrained"] = False  # download torchvision 's pretrained weights
+    cfg["device"] = "cpu"
 
     if weights is None:
         weights = (
@@ -1244,7 +1247,7 @@ def export_vietocr_to_onnx(
     model.load_state_dict(torch.load(weights, map_location=torch.device("cpu")))
     model.eval()
 
-    atol = 1e-4  # absolute tolerance
+    atol = 1e-5  # absolute tolerance
 
     assert export_cnn(
         model.cnn, cfg, export_dir, atol
@@ -1279,8 +1282,9 @@ def export_vietocr_to_onnx(
             model.transformer.embed_tgt, cfg, export_dir, atol
         ), "failed to export transformer 's embed_tgt"
 
+        # failed atol validation
         assert export_transformer_decoder(
-            model.transformer.transformer.decoder, cfg, export_dir, atol
+            model.transformer.transformer.decoder, cfg, export_dir, atol=1e-4
         ), "failed to export transformer 's decoder"
 
         assert export_transformer_fc(
