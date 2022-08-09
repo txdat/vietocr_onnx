@@ -1250,53 +1250,53 @@ def export_vietocr_to_onnx(
     atol = 1e-5  # absolute tolerance
 
     assert export_cnn(
-        model.cnn, cfg, export_dir, atol
+        model.cnn, cfg, export_dir, atol, prefix
     ), f"failed to export {model}'s cnn"
 
     if model_name == "vgg_seq2seq":
         assert export_seq2seq_encoder(
-            model.transformer.encoder, cfg, export_dir, atol
+            model.transformer.encoder, cfg, export_dir, atol, prefix
         ), "failed to export seq2seq 's encoder"
 
         assert export_seq2seq_decoder(
-            model.transformer.decoder, cfg, export_dir, atol
+            model.transformer.decoder, cfg, export_dir, atol, prefix
         ), "failed to export seq2seq 's decoder"
 
         assert compose_cnn_seq2seq_encoder(
-            cfg, export_dir
+            cfg, export_dir, prefix
         ), "failed to compose seq2seq 's cnn and encoder"
 
         for file in ["cnn", "seq2seq_encoder"]:
-            os.remove(f"{export_dir}/vietocr_{file}.onnx")
+            os.remove(f"{export_dir}/{prefix}{file}.onnx")
 
     elif model_name == "vgg_transformer":
         assert export_transformer_pos_enc(
-            model.transformer.pos_enc, cfg, export_dir, atol
+            model.transformer.pos_enc, cfg, export_dir, atol, prefix
         ), "failed to export transformer 's pos_enc"
 
         assert export_transformer_encoder(
-            model.transformer.transformer.encoder, cfg, export_dir, atol
+            model.transformer.transformer.encoder, cfg, export_dir, atol, prefix
         ), "failed to export transformer 's encoder"
 
         assert export_transformer_embed_tgt(
-            model.transformer.embed_tgt, cfg, export_dir, atol
+            model.transformer.embed_tgt, cfg, export_dir, atol, prefix
         ), "failed to export transformer 's embed_tgt"
 
         # failed atol validation
         assert export_transformer_decoder(
-            model.transformer.transformer.decoder, cfg, export_dir, atol=1e-4
+            model.transformer.transformer.decoder, cfg, export_dir, 1e-4, prefix
         ), "failed to export transformer 's decoder"
 
         assert export_transformer_fc(
-            model.transformer.fc, cfg, export_dir, atol
+            model.transformer.fc, cfg, export_dir, atol, prefix
         ), "failed to export transformer 's fc"
 
         assert compose_cnn_transformer_encoder(
-            cfg, export_dir
+            cfg, export_dir, prefix
         ), "failed to compose transformer 's cnn and encoder"
 
         assert compose_transformer_decoder(
-            cfg, export_dir
+            cfg, export_dir, prefix
         ), "failed to compose transformer 's decoder"
 
         for file in [
@@ -1306,7 +1306,7 @@ def export_vietocr_to_onnx(
             "transformer_embed_tgt",
             "transformer_fc",
         ]:
-            os.remove(f"{export_dir}/vietocr_{file}.onnx")
+            os.remove(f"{export_dir}/{prefix}{file}.onnx")
 
     print(f"exported vietocr 's {model_name} to {export_dir}!")
 
@@ -1316,10 +1316,12 @@ if __name__ == "__main__":
         export_dir="/tmp/vietocr_seq2seq",
         model_name="vgg_seq2seq",
         weights="/home/txdat/Downloads/vgg_seq2seq.pth",
+        prefix="",
     )
 
     export_vietocr_to_onnx(
         export_dir="/tmp/vietocr_transformer",
         model_name="vgg_transformer",
         weights="/home/txdat/Downloads/vgg_transformer.pth",
+        prefix="",
     )
